@@ -44,56 +44,50 @@ export default function SignupPage() {
     setError('');
 
     try {
-      // 1. Create auth user
+      // 1) Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
       });
-
       if (authError) throw authError;
+      if (!authData.user) throw new Error('No auth user returned');
 
-      if (authData.user) {
-        // 2. Create user profile in database
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert([
-            {
-              id: authData.user.id,
-              email: formData.email,
-              name: formData.name,
-              role: userRole === 'driver' ? 'driver' : 'employee',
-              phone_number: formData.phone,
-            },
-          ]);
+      // 2) Put role into JWT metadata so RLS/middleware see it
+      // NOTE: this sets user_metadata.role; our RLS helper reads it from the JWT.
+      const jwtRole = (userRole === 'driver') ? 'driver' : 'employee';
+      const { error: metaErr } = await supabase.auth.updateUser({
+        data: { role: jwtRole, full_name: formData.name, phone: formData.phone, company_id: formData.company }
+      });
+      if (metaErr) throw metaErr;
 
-        if (profileError) throw profileError;
+      // 3) Create row in public.users
+      const { error: profileError } = await supabase.from('users').insert([{
+        id: authData.user.id,
+        email: formData.email,
+        full_name: formData.name,
+        role: jwtRole,              // 'driver' or 'employee'
+        phone: formData.phone,
+        company_id: formData.company,
+      }]);
+      if (profileError) throw profileError;
 
-        // 3. Create role-specific profile
-        const profileData = {
+      // 4) If driver, create driver_profiles row
+      if (userRole === 'driver') {
+        const year = parseInt(formData.vehicleYear || '0', 10) || null;
+        const { error: driverErr } = await supabase.from('driver_profiles').insert([{
           user_id: authData.user.id,
-          profile_type: userRole,
-          company_id: formData.company,
-          employee_id: formData.employeeId,
-        };
-
-        if (userRole === 'driver') {
-          profileData.driver_license = formData.driverLicense;
-          profileData.vehicle_make = formData.vehicleMake;
-          profileData.vehicle_model = formData.vehicleModel;
-          profileData.vehicle_year = parseInt(formData.vehicleYear);
-          profileData.license_plate = formData.licensePlate;
-          profileData.max_passengers = 4;
-        }
-
-        const { error: userProfileError } = await supabase
-          .from('user_profiles')
-          .insert([profileData]);
-
-        if (userProfileError) throw userProfileError;
-
-        // 4. Redirect to appropriate dashboard
-        router.push(`/auth/verify-email?role=${userRole}`);
+          driver_license: formData.driverLicense,
+          vehicle_make: formData.vehicleMake,
+          vehicle_model: formData.vehicleModel,
+          vehicle_year: year,
+          license_plate: formData.licensePlate,
+          max_passengers: 4
+        }]);
+        if (driverErr) throw driverErr;
       }
+
+      // 5) Redirect
+      router.push(`/auth/verify-email?role=${userRole}`);
     } catch (error) {
       setError(error.message);
     } finally {

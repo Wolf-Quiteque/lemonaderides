@@ -1,7 +1,7 @@
 // components/maps/ride-map.js
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { loadYandexMaps } from '../../lib/yandex.js';
+import { loadYandex } from '../../lib/yandex.js';
 
 export function RideMap({
   onLocationSelect,
@@ -16,7 +16,7 @@ export function RideMap({
   useEffect(() => {
     if (!containerRef.current) return;
     let destroyed = false;
-    loadYandexMaps()
+    loadYandex({ apiKey: process.env.NEXT_PUBLIC_YANDEX_JS_API_KEY })
       .then((ymaps) => {
         if (destroyed || !containerRef.current) return;
         const center = [initialLocation[1], initialLocation[0]]; // ymaps uses [lat, lon]

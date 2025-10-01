@@ -54,7 +54,7 @@ export default function UnifiedSearch({
             // Check if coordinates are within Angola
             return lat >= -18.04 && lat <= -4.38 && lon >= 11.64 && lon <= 24.08;
           }
-          return true; // Keep results without coordinates for now
+          return false; // Skip results without coordinates
         });
         
         console.log(`Found ${data.results?.length || 0} results, ${filteredResults.length} within Angola`);
@@ -134,7 +134,7 @@ export default function UnifiedSearch({
     const geocodeQuery = displayText.includes('Angola') ? displayText : `${displayText}, Angola`;
     
     const response = await fetch(
-      `https://geocode-maps.yandex.ru/1.x?apikey=${config.yandex.geocoderHttpApiKey}&geocode=${encodeURIComponent(geocodeQuery)}&format=json&lang=${config.yandex.lang}&results=5&bbox=11.64,-18.04~24.08,-4.38`
+      `https://geocode-maps.yandex.ru/1.x?apikey=${config.yandex.geocoderHttpApiKey}&geocode=${encodeURIComponent(geocodeQuery)}&format=json&lang=${config.yandex.lang}&results=5&bbox=11.64,-18.04~24.08,-4.38&rspn=1`
     );
 
     if (!response.ok) throw new Error('Failed to geocode');

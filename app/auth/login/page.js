@@ -24,41 +24,55 @@ export default function LoginPage() {
     checkSession();
   }, []);
 
-  const redirectUser = async (userId) => {
-    try {
-      // Get user role from database
-      const { data: user, error: userError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', userId)
-        .single();
+const redirectUser = async (userId) => {
+  try {
+    // 1) Get user role from DB
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
+      .single();
 
-      if (userError) {
-        console.error('Error fetching user role:', userError);
-        // If user doesn't exist in database, redirect to profile setup
-        router.push('/auth/setup-profile');
-        return;
-      }
-
-      // Redirect based on role
-      switch (user.role) {
-        case 'driver':
-          router.push('/driver/dashboard');
-          break;
-        case 'supervisor':
-          router.push('/supervisor/dashboard');
-          break;
-        case 'admin':
-          router.push('/admin/dashboard');
-          break;
-        default:
-          router.push('/dashboard'); // Employee/rider
-      }
-    } catch (error) {
-      console.error('Redirect error:', error);
-      router.push('/dashboard'); // Fallback
+    if (userError) {
+      console.error('Error fetching user role:', userError);
+      router.push('/auth/setup-profile');
+      return;
     }
-  };
+
+    // 2) Put role into JWT metadata so middleware (and RLS) can see it
+    const { error: metaErr } = await supabase.auth.updateUser({
+      data: { role: user.role }  // <- critical line
+    });
+    if (metaErr) {
+      console.error('updateUser metadata error:', metaErr);
+      // proceed anyway, but middleware may still fail without refresh
+    }
+
+    // REMOVED THE BARE 'return' HERE ✓
+    
+    // 3) Refresh session so access token includes the updated claim
+    await supabase.auth.refreshSession();
+
+    // 4) Now the middleware can read the correct role from the token
+    switch (user.role) {
+      case 'driver':
+        router.push('/driver/dashboard');
+        break;
+      case 'supervisor':
+        router.push('/supervisor/dashboard');
+        break;
+      case 'admin':
+        router.push('/admin/dashboard');
+        break;
+      default:
+        router.push('/'); // employee
+    }
+  } catch (error) {
+    console.error('Redirect error:', error);
+    router.push('/');
+  }
+};
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -77,6 +91,7 @@ export default function LoginPage() {
         console.log('Login successful, user:', data.user);
 
         // Wait a moment for the session to be set
+        console.log(data.user);
         setTimeout(() => {
           redirectUser(data.user.id);
         }, 100);

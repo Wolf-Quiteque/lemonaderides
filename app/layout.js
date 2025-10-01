@@ -1,5 +1,6 @@
 import './globals.css'
 import { ThemeProvider } from '../components/theme-provider'
+import RealtimeNotifications from '../components/RealtimeNotifications'
 
 export const metadata = {
   title: 'RideShare',
@@ -14,6 +15,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="bg-background text-foreground">
         <ThemeProvider>
+          <RealtimeNotifications />
           {children}
         </ThemeProvider>
       </body>

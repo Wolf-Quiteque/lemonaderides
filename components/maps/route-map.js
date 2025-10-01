@@ -1,7 +1,7 @@
 // components/maps/route-map.js
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { loadYandexMaps } from '../../lib/yandex.js';
+import { loadYandex } from '../../lib/yandex.js';
 
 export function RouteMap({ pickup, dropoff, waypoints = [], onRouteCalculate, interactive = true }) {
   const containerRef = useRef(null);
@@ -12,7 +12,7 @@ export function RouteMap({ pickup, dropoff, waypoints = [], onRouteCalculate, in
   useEffect(() => {
     if (!containerRef.current) return;
     let destroyed = false;
-    loadYandexMaps()
+    loadYandex({ apiKey: process.env.NEXT_PUBLIC_YANDEX_JS_API_KEY })
       .then((ymaps) => {
         if (destroyed || !containerRef.current) return;
         // Inputs are [lng, lat]; ymaps wants [lat, lon]

@@ -40,18 +40,19 @@ export default function SetupProfilePage() {
     try {
       if (!user) throw new Error('No user found');
 
-      // Create user profile in database
-      const { error: dbError } = await supabase
-        .from('users')
-        .insert([
-          {
-            id: user.id,
-            email: user.email,
-            name: formData.name,
-            role: formData.role,
-            phone_number: formData.phone,
-          },
-        ]);
+            // Create user profile in database
+            const { error: dbError } = await supabase
+              .from('users')
+              .insert([
+                {
+                  id: user.id,
+                  email: user.email,
+                  full_name: formData.name,
+                  role: formData.role,
+                  phone: formData.phone,
+                  company_id: formData.company,
+                },
+              ]);
 
       if (dbError) throw dbError;
 

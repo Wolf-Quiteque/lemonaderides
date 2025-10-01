@@ -6,7 +6,7 @@ import { Button } from '../ui/button.js';
 import { MapPin, Clock, User, Car } from 'lucide-react';
 import { format } from 'date-fns';
 
-export function RideCard({ ride, onAction, showActions = true }) {
+export function RideCard({ ride, onAction, showActions = true, viewAs = 'passenger' }) {
   const statusColors = {
     pending: 'bg-yellow-100 text-yellow-800',
     approved: 'bg-blue-100 text-blue-800',
@@ -31,7 +31,7 @@ export function RideCard({ ride, onAction, showActions = true }) {
             <span className="text-gray-400 shrink-0">→</span>
             <span className="truncate">{ride.dropoff_address}</span>
           </CardTitle>
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[ride.status]}`}>
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[ride.status] || 'bg-gray-100 text-gray-800'}`}>
             {String(ride.status || '').replace('_', ' ')}
           </span>
         </div>
@@ -60,19 +60,24 @@ export function RideCard({ ride, onAction, showActions = true }) {
 
         {showActions && onAction && (
           <div className="flex gap-2 pt-2">
-            {ride.status === 'pending' && (
-              <Button variant="secondary" size="sm" onClick={() => handleAction('edit')}>
-                Edit
-              </Button>
+            {viewAs === 'passenger' && ride.status === 'pending' && (
+              <>
+                <Button variant="secondary" size="sm" onClick={() => handleAction('edit')}>
+                  Edit
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => handleAction('cancel')}>
+                  Cancel
+                </Button>
+              </>
             )}
-            {ride.status === 'pending' && (
-              <Button variant="destructive" size="sm" onClick={() => handleAction('cancel')}>
-                Cancel
-              </Button>
-            )}
-            {ride.status === 'assigned' && (
+            {viewAs === 'passenger' && ride.status === 'assigned' && (
               <Button size="sm" onClick={() => handleAction('track')}>
                 Track Ride
+              </Button>
+            )}
+            {viewAs === 'driver' && ride.status === 'pending' && (
+              <Button size="sm" onClick={() => handleAction('accept')}>
+                Accept Ride
               </Button>
             )}
           </div>
@@ -81,4 +86,3 @@ export function RideCard({ ride, onAction, showActions = true }) {
     </Card>
   );
 }
-

@@ -44,10 +44,10 @@ export default function NewRide() {
 
           try {
             const response = await fetch(
-              `https://api.opencagedata.com/geocode/v1/json?q=${coords[0]}+${coords[1]}&key=${process.env.NEXT_PUBLIC_OPENCAGE_API_KEY}&bounds=-18.04,11.64,-4.38,24.08`
+              `https://geocode-maps.yandex.ru/1.x?apikey=${process.env.NEXT_PUBLIC_YANDEX_GEOCODER_HTTP_API_KEY}&geocode=${coords[1]},${coords[0]}&format=json&bbox=11.64,-18.04~24.08,-4.38&rspn=1`
             );
             const data = await response.json();
-            const address = data.results[0]?.formatted || 'Current location';
+            const address = data.response.GeoObjectCollection.featureMember[0]?.GeoObject.metaDataProperty.GeocoderMetaData.Address.formatted || 'Current location';
 
             setFormData(prev => ({ ...prev, pickup: address }));
             // Store as [lat, lon]
@@ -84,10 +84,10 @@ export default function NewRide() {
       }
 
       const response = await fetch(
-        `https://api.opencagedata.com/geocode/v1/json?q=${coords.lat}+${coords.lng}&key=${process.env.NEXT_PUBLIC_OPENCAGE_API_KEY}&bounds=-18.04,11.64,-4.38,24.08`
+        `https://geocode-maps.yandex.ru/1.x?apikey=${process.env.NEXT_PUBLIC_YANDEX_GEOCODER_HTTP_API_KEY}&geocode=${coords.lng},${coords.lat}&format=json&bbox=11.64,-18.04~24.08,-4.38&rspn=1`
       );
       const data = await response.json();
-      const address = data.results[0]?.formatted || 'Selected location';
+      const address = data.response.GeoObjectCollection.featureMember[0]?.GeoObject.metaDataProperty.GeocoderMetaData.Address.formatted || 'Selected location';
 
       if (activeLocation === 'pickup') {
         setFormData(prev => ({ ...prev, pickup: address }));
@@ -109,21 +109,24 @@ export default function NewRide() {
 
   const handleSubmit = async () => {
     setLoading(true);
+
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
+
+      console.log(user.user_metadata.company_id)
+
+      
       const { error } = await supabase
         .from('rides')
         .insert([
           {
-            passenger_id: user.id,
-            pickup_address: formData.pickup,
-            dropoff_address: formData.dropoff,
-            pickup_lat: pickupCoordinates[0], // lat
-            pickup_lng: pickupCoordinates[1], // lon
-            dropoff_lat: dropoffCoordinates[0], // lat
-            dropoff_lng: dropoffCoordinates[1], // lon
+            requester_id: user.id,
+            origin: formData.pickup,
+            destination: formData.dropoff,
+            company_id: user.user_metadata.company_id,
             scheduled_for: `${formData.date}T${formData.time}`,
-            seats_required: 1,
+            seats_requested: 1,
             notes: formData.notes || null,
             status: 'pending',
           },
@@ -131,6 +134,7 @@ export default function NewRide() {
       if (error) throw error;
       router.push('/rides');
     } catch (err) {
+      console.log(err)
       alert('Failed to schedule ride');
     } finally {
       setLoading(false);
