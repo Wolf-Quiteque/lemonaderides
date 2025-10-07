@@ -40,7 +40,7 @@ export default function RealtimeNotifications() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 space-y-2 z-50">
+    <div className="fixed bottom-4 right-4 space-y-2 z-[70]">
       {items.map(it => (
         <div key={it.id} className="bg-black text-white p-3 rounded shadow-lg w-80">
           <div className="flex justify-between items-center">

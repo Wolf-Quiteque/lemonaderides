@@ -20,7 +20,6 @@ export function RideCard({ ride, onAction, showActions = true, viewAs = 'passeng
     if (onAction) onAction(action, ride);
   };
 
-  console.log(ride);
 
   return (
     <Card className="hover:shadow-lg transition-shadow bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
