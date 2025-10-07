@@ -82,6 +82,16 @@ export function RideCard({ ride, onAction, showActions = true, viewAs = 'passeng
                 Accept Ride
               </Button>
             )}
+            {viewAs === 'driver' && ride.status === 'assigned' && (
+              <Button size="sm" variant="success" onClick={() => handleAction('start')}>
+                Start Ride
+              </Button>
+            )}
+            {viewAs === 'driver' && ride.status === 'in_progress' && (
+              <Button size="sm" variant="destructive" onClick={() => handleAction('end')}>
+                End Ride
+              </Button>
+            )}
           </div>
         )}
       </CardContent>

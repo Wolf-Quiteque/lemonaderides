@@ -1,160 +1,95 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
-import LocationPicker from '../../components/maps/location-picker';
-import SearchBox from '../../components/maps/search-box';
 import { MobileLayout } from '../../components/layout/mobile-layout.js';
-import { Button } from '../../components/ui/button.js';
-import { Card, CardContent } from '../../components/ui/card.js';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card.js';
+import { MapPin, Clock, User, Car } from 'lucide-react';
+import { format } from 'date-fns';
 
-export default function ScheduleRide() {
-  const [formData, setFormData] = useState({
-    pickup: '',
-    dropoff: '',
-    date: '',
-    time: '',
-    passengers: 1
-  });
-  const [pickupCoordinates, setPickupCoordinates] = useState(null);
-  const [dropoffCoordinates, setDropoffCoordinates] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [activeLocation, setActiveLocation] = useState('pickup');
+export default function ActiveRideTracker() {
+  const [activeRide, setActiveRide] = useState(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
-  
 
-  const handleLocationSelect = async (coords) => {
-    const response = await fetch(
-      `https://api.opencagedata.com/geocode/v1/json?q=${coords.lat}+${coords.lng}&key=${process.env.NEXT_PUBLIC_OPENCAGE_API_KEY}`
-    );
-    const data = await response.json();
-    const address = data.results[0]?.formatted || 'Unknown location';
+  useEffect(() => {
+    const checkAuthAndFetchActiveRide = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push('/auth/login');
+        return;
+      }
 
-    if (activeLocation === 'pickup') {
-      setFormData({ ...formData, pickup: address });
-      setPickupCoordinates([coords.lng, coords.lat]);
-    } else {
-      setFormData({ ...formData, dropoff: address });
-      setDropoffCoordinates([coords.lng, coords.lat]);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('rides')
-        .insert([{
-          passenger_id: user.id,
-          pickup_address: formData.pickup,
-          dropoff_address: formData.dropoff,
-          pickup_lat: pickupCoordinates[1],
-          pickup_lng: pickupCoordinates[0],
-          dropoff_lat: dropoffCoordinates[1],
-          dropoff_lng: dropoffCoordinates[0],
-          scheduled_for: `${formData.date}T${formData.time}`,
-          seats_required: formData.passengers,
-          status: 'pending'
-        }]);
+        .select('*')
+        .eq('requester_id', session.user.id)
+        .eq('status', 'in_progress')
+        .limit(1)
+        .single();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+        console.error('Error fetching active ride:', error);
+      }
 
-      alert('Ride scheduled successfully!');
-      router.push('/dashboard');
-
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to schedule ride');
-    } finally {
+      setActiveRide(data);
       setLoading(false);
-    }
-  };
+    };
+
+    checkAuthAndFetchActiveRide();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <MobileLayout>
+        <div className="flex items-center justify-center pt-20">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Checking for active rides...</p>
+          </div>
+        </div>
+      </MobileLayout>
+    );
+  }
 
   return (
     <MobileLayout>
       <div className="space-y-4">
-        <h1 className="text-xl font-semibold">Schedule a Ride</h1>
-
-        <Card>
-          <CardContent className="space-y-4 p-4">
-            <div onClick={() => setActiveLocation('pickup')}>
-              <label className="block mb-2 text-sm font-medium">Pickup Location</label>
-              <SearchBox
-                onSelect={({ name, coordinates }) => {
-                  setFormData({ ...formData, pickup: name });
-                  setPickupCoordinates(coordinates);
-                }}
-                placeholder="Enter pickup address"
-              />
-            </div>
-
-            <div onClick={() => setActiveLocation('dropoff')}>
-              <label className="block mb-2 text-sm font-medium">Dropoff Location</label>
-              <SearchBox
-                onSelect={({ name, coordinates }) => {
-                  setFormData({ ...formData, dropoff: name });
-                  setDropoffCoordinates(coordinates);
-                }}
-                placeholder="Enter dropoff address"
-              />
-            </div>
-
-            <LocationPicker
-              onLocationSelect={handleLocationSelect}
-              initialCoordinates={ activeLocation === 'pickup' ? pickupCoordinates : dropoffCoordinates }
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block mb-2 text-sm font-medium">Date</label>
-                <input
-                  type="date"
-                  required
-                  className="w-full p-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                />
+        <h1 className="text-xl font-semibold">Your Active Ride</h1>
+        {activeRide ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-blue-500" />
+                <span>{activeRide.origin} to {activeRide.destination}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  {activeRide.scheduled_for ? format(new Date(activeRide.scheduled_for), 'MMM dd, yyyy HH:mm') : '—'}
+                </div>
+                <div className="flex items-center gap-1">
+                  <User className="h-4 w-4" />
+                  {activeRide.seats_required} seat{activeRide.seats_required > 1 ? 's' : ''}
+                </div>
               </div>
-
-              <div>
-                <label className="block mb-2 text-sm font-medium">Time</label>
-                <input
-                  type="time"
-                  required
-                  className="w-full p-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  value={formData.time}
-                  onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                />
+               <div className="flex items-center gap-1 text-sm font-medium text-green-600">
+                  <Car className="h-4 w-4" />
+                  <span>Your ride is on the way!</span>
+                </div>
+              {/* Placeholder for a map component */}
+              <div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                <p className="text-gray-500">Live map placeholder</p>
               </div>
-            </div>
-
-            <div>
-              <label className="block mb-2 text-sm font-medium">Passengers</label>
-              <select
-                className="w-full p-3 bg-background border border-border rounded-lg"
-                value={formData.passengers}
-                onChange={(e) => setFormData({ ...formData, passengers: parseInt(e.target.value) })}
-              >
-                {[1, 2, 3, 4].map((num) => (
-                  <option key={num} value={num}>{num}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Button type="submit" onClick={handleSubmit} disabled={loading} className="w-full">
-                {loading ? 'Scheduling...' : 'Schedule Ride'}
-              </Button>
-              <Button type="button" variant="secondary" className="w-full" onClick={() => router.push('/dashboard')}>
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="text-center py-10">
+            <p className="text-muted-foreground">You have no active rides at the moment.</p>
+          </div>
+        )}
       </div>
     </MobileLayout>
   );

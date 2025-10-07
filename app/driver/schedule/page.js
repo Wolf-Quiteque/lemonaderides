@@ -35,7 +35,8 @@ export default function DriverSchedule() {
       .from("rides")
       .select("*")
       .eq("driver_id", driverId)
-      .in("status", ["assigned", "in_progress"]);
+      .in("status", ["assigned", "in_progress", "completed"])
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error("Error fetching accepted rides:", error);
@@ -43,6 +44,25 @@ export default function DriverSchedule() {
       setAcceptedRides(data);
     }
     setIsFetching(false);
+  };
+
+  const handleUpdateRideStatus = async (ride, newStatus, onSuccess) => {
+    const { error } = await supabase
+      .from('rides')
+      .update({ status: newStatus })
+      .eq('id', ride.id);
+
+    if (error) {
+      console.error(`Error updating ride status to ${newStatus}:`, error);
+      // Optionally, show an error message to the user
+    } else {
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        // Refresh the list of rides to reflect the change
+        await fetchAcceptedRides(user.id);
+      }
+    }
   };
 
   if (loading) {
@@ -75,7 +95,21 @@ export default function DriverSchedule() {
           ) : acceptedRides.length > 0 ? (
             <div className="space-y-4 max-h-[75vh] overflow-y-auto">
               {acceptedRides.map((ride) => (
-                <RideCard key={ride.id} ride={ride} showActions={false} />
+                <RideCard
+                  key={ride.id}
+                  ride={ride}
+                  viewAs="driver"
+                  showActions={true}
+                  onAction={(action, ride) => {
+                    if (action === 'start') {
+                      handleUpdateRideStatus(ride, 'in_progress', () => {
+                        router.push(`/driver/ride/${ride.id}`);
+                      });
+                    } else if (action === 'end') {
+                      handleUpdateRideStatus(ride, 'completed');
+                    }
+                  }}
+                />
               ))}
             </div>
           ) : (

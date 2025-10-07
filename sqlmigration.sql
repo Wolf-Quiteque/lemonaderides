@@ -44,6 +44,7 @@ create table if not exists public.notifications (
 create table if not exists public.rides (
   id uuid primary key default uuid_generate_v4(),
   requester_id uuid not null references public.users(id) on delete cascade,
+  driver_id uuid null references public.users(id) on delete set null,
   company_id text null, -- optional for multi-company
   origin text not null,
   origin_coords geography(point, 4326) null, -- lon/lat
