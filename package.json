@@ -2,8 +2,8 @@
   "name": "rideshare-app",
   "version": "1.0.0",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+  "dev": "set TURBOPACK=true && next dev",
+  "build": "set TURBOPACK=true && next build",
     "start": "next start",
     "lint": "next lint"
   },

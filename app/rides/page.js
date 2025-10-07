@@ -18,7 +18,7 @@ export default function RidesPage() {
         const { data } = await supabase
           .from('rides')
           .select('*')
-          .eq('passenger_id', user.id)
+          .eq('requester_id', user.id)
           .order('created_at', { ascending: false });
         setRides(data || []);
       }
@@ -37,14 +37,14 @@ export default function RidesPage() {
 
   return (
     <MobileLayout>
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">My Rides</h2>
+<div className="space-y-4 dark:bg-gray-900 dark:text-gray-100">
+<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">My Rides</h2>
 
         {rides.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="mb-4 text-muted-foreground">No rides yet</p>
-            <Button onClick={() => router.push('/schedule')}>Schedule Your First Ride</Button>
-          </div>
+<div className="text-center py-12">
+  <p className="mb-4 text-gray-700 dark:text-gray-300">No rides yet</p>
+  <Button onClick={() => router.push('/rides/new')}>Schedule Your First Ride</Button>
+</div>
         ) : (
           <div className="space-y-4">
             {rides.map((ride) => (
@@ -66,4 +66,3 @@ export default function RidesPage() {
     </MobileLayout>
   );
 }
-

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 import { MobileLayout } from '../../components/layout/mobile-layout.js';
+import { LogOut } from 'lucide-react';
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -59,7 +60,7 @@ export default function Profile() {
 
   return (
     <MobileLayout>
-      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+      <div className="bg-background">
         {/* Header */}
         
         <div className="px-6 py-8 space-y-6">
@@ -79,51 +80,58 @@ export default function Profile() {
                   </svg>
                 </button>
               )}
-            </div>
-            {!editing && (
-              <h2 className="text-xl font-bold text-gray-900 mt-4">{profile.fullName}</h2>
-            )}
+  </div>
+
+  {!editing && (
+  <div className="mt-6 w-full">
+    <button aria-label="Sign out" onClick={async () => { await supabase.auth.signOut(); router.push('/auth/login'); }} className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+      <LogOut className="h-5 w-5" />
+      <span className="text-lg">Sign out</span>
+    </button>
+  </div>
+  )}
+  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-4">{profile.fullName}</h2>
           </div>
 
           {/* Profile Information */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100">
-              <h3 className="font-semibold text-gray-900">Personal Information</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+<h3 className="font-semibold text-gray-900 dark:text-gray-100">Personal Information</h3>
             </div>
 
             {/* Full Name */}
-            <div className="px-6 py-4 border-b border-gray-100">
-              <label className="text-xs text-gray-500 mb-2 block">Full Name</label>
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+<label className="text-xs text-gray-500 mb-2 block dark:text-gray-300">Full Name</label>
               {editing ? (
                 <input
                   type="text"
                   value={profile.fullName}
                   onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-                  className="w-full text-gray-900 font-medium focus:outline-none"
+                  className="w-full bg-transparent text-gray-900 dark:text-gray-100 font-medium focus:outline-none"
                 />
               ) : (
-                <p className="text-gray-900 font-medium">{profile.fullName}</p>
+                <p className="text-gray-900 dark:text-gray-100 font-medium">{profile.fullName}</p>
               )}
             </div>
 
             {/* Email */}
-            <div className="px-6 py-4 border-b border-gray-100">
-              <label className="text-xs text-gray-500 mb-2 block">Email</label>
-              <p className="text-gray-900 font-medium">{profile.email}</p>
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+<label className="text-xs text-gray-500 mb-2 block dark:text-gray-300">Email</label>
+              <p className="text-gray-900 dark:text-gray-100 font-medium">{profile.email}</p>
             </div>
 
             {/* Phone */}
             <div className="px-6 py-4">
-              <label className="text-xs text-gray-500 mb-2 block">Phone Number</label>
+<label className="text-xs text-gray-500 mb-2 block dark:text-gray-300">Phone Number</label>
               {editing ? (
                 <input
                   type="tel"
                   value={profile.phone}
                   onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                  className="w-full text-gray-900 font-medium focus:outline-none"
+                  className="w-full bg-transparent text-gray-900 dark:text-gray-100 font-medium focus:outline-none"
                 />
               ) : (
-                <p className="text-gray-900 font-medium">{profile.phone}</p>
+                <p className="text-gray-900 dark:text-gray-100 font-medium">{profile.phone}</p>
               )}
             </div>
           </div>
@@ -148,48 +156,48 @@ export default function Profile() {
           </div>
 
           {/* Preferences */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100">
-              <h3 className="font-semibold text-gray-900">Preferences</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Preferences</h3>
             </div>
 
-            <div className="divide-y divide-gray-100">
-              <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+            <div className="divide-y divide-gray-100 dark:divide-gray-700">
+              <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/50 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
                   </div>
-                  <span className="text-gray-900 font-medium">Notifications</span>
+                  <span className="text-gray-900 dark:text-gray-100 font-medium">Notifications</span>
                 </div>
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
 
-              <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+              <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center">
-                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 bg-green-50 dark:bg-green-900/50 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                     </svg>
                   </div>
-                  <span className="text-gray-900 font-medium">Payment Methods</span>
+                  <span className="text-gray-900 dark:text-gray-100 font-medium">Payment Methods</span>
                 </div>
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
 
-              <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+              <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center">
-                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 bg-purple-50 dark:bg-purple-900/50 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                   </div>
-                  <span className="text-gray-900 font-medium">Privacy & Security</span>
+                  <span className="text-gray-900 dark:text-gray-100 font-medium">Privacy & Security</span>
                 </div>
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -199,28 +207,28 @@ export default function Profile() {
           </div>
 
           {/* Support Section */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100">
-              <h3 className="font-semibold text-gray-900">Support</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Support</h3>
             </div>
 
-            <div className="divide-y divide-gray-100">
-              <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                <span className="text-gray-900 font-medium">Help Center</span>
+            <div className="divide-y divide-gray-100 dark:divide-gray-700">
+              <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <span className="text-gray-900 dark:text-gray-100 font-medium">Help Center</span>
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
 
-              <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                <span className="text-gray-900 font-medium">Terms & Conditions</span>
+              <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <span className="text-gray-900 dark:text-gray-100 font-medium">Terms & Conditions</span>
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
 
-              <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                <span className="text-gray-900 font-medium">About</span>
+              <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <span className="text-gray-900 dark:text-gray-100 font-medium">About</span>
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

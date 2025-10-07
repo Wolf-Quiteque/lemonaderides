@@ -87,7 +87,13 @@ export default function SignupPage() {
       }
 
       // 5) Redirect
-      router.push(`/auth/verify-email?role=${userRole}`);
+      if(jwtRole === 'driver'){
+        router.push(`/driver/dashboard`);
+      }
+      else{
+   router.push(`/`);
+      }
+   
     } catch (error) {
       setError(error.message);
     } finally {

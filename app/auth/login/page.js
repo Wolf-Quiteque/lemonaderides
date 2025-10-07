@@ -33,6 +33,8 @@ const redirectUser = async (userId) => {
       .eq('id', userId)
       .single();
 
+   
+
     if (userError) {
       console.error('Error fetching user role:', userError);
       router.push('/auth/setup-profile');

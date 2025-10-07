@@ -12,7 +12,7 @@ export function MobileLayout({ children }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 safe-top shadow-sm">
+      <header className="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 safe-top shadow-sm">
         <div className="container py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -30,7 +30,7 @@ export function MobileLayout({ children }) {
             <button
               aria-label="Toggle theme"
               onClick={toggleTheme}
-              className="p-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             >
               {theme === 'light' ? (
                 <Sun className="h-5 w-5 text-amber-600" />
@@ -50,17 +50,17 @@ export function MobileLayout({ children }) {
       {/* Floating Action Button */}
       <Link
         href="/rides/new"
-        className="fixed bottom-20 right-4 z-40 w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all active:scale-95"
+        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all active:scale-95"
       >
         <Plus className="h-6 w-6 text-white" />
       </Link>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 safe-bottom shadow-lg z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 safe-bottom shadow-lg z-50">
         <div className="container">
           <div className="flex justify-around items-center py-2">
             <NavButton 
-              href="/dashboard" 
+              href="/" 
               label="Home" 
               active={pathname?.startsWith('/dashboard') || pathname === '/'}
             >
@@ -106,8 +106,8 @@ function NavButton({ href, label, active, children }) {
       href={href}
       className={`flex flex-col items-center space-y-1 transition-all py-2 px-3 rounded-xl ${
         active 
-          ? 'text-blue-600 bg-blue-50' 
-          : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+          ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/50' 
+          : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800'
       }`}
     >
       <div className={`transition-transform ${active ? 'scale-110' : ''}`}>
