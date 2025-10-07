@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase.js';
 import { getAuthHeader } from '@/lib/authHeader';
 import { loadYandex } from '@/lib/yandex';
 
